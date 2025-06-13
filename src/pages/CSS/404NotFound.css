@@ -1,0 +1,104 @@
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #f9f9f9;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.not-found-container h1 {
+  font-size: 2.5rem;
+  color: #d32f7b;
+  margin: 20px 0 10px;
+}
+
+.not-found-container p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.not-found-container button {
+  background-color: #d32f7b;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.not-found-container button:hover {
+  background-color: #a01856;
+}
+
+/* Ghost Animation */
+.ghost {
+  width: 120px;
+  height: 120px;
+  background: white;
+  border-radius: 50% 50% 0 0;
+  position: relative;
+  animation: float 2s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.ghost::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 -5px 0 0 white;
+}
+
+.face {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.eye {
+  width: 10px;
+  height: 10px;
+  background: #333;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: -15px;
+}
+
+.eye.right {
+  left: 15px;
+}
+
+.mouth {
+  width: 20px;
+  height: 10px;
+  border-radius: 0 0 50% 50%;
+  background: #333;
+  position: absolute;
+  top: 20px;
+  left: -10px;
+}
+
+/* Animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
