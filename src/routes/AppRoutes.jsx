@@ -5,6 +5,9 @@ import Home from '../pages/HomePage';
 import Events from '../pages/Events';
 import EventDetail from '../pages/EventDetailPage';
 import ProfilePage from '../pages/ProfilePage';
+import AttendeeDashboard from '../pages/Attendee/AttendeeDB';
+import OrganizerDashboard from '../pages/Organizer/OrganizerDB';
+import OrganizerCreateEvent from '../pages/Organizer/OrganizerCreateEvent';
 import NotFound from '../pages/404NotFound';
 // import all other pages...
 
@@ -17,6 +20,9 @@ export default function AppRoutes() {
       <Route path="/events" element={<Events />} />
       <Route path="/events/:eventId" element={<EventDetail />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/attendee/dashboard" element={<AttendeeDashboard />} />
+      <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
+      <Route path="/organizer/create-event" element={<OrganizerCreateEvent />} />
       {<Route path="*" element={<NotFound />} />}
       {/* Add the rest of the routes here */}
     </Routes>
