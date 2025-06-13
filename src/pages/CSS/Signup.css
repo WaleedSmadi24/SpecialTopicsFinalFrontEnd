@@ -1,0 +1,118 @@
+.signup-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #5c1137, #a12768);
+  color: white;
+}
+
+.container {
+  display: flex;
+  width: 80%;
+  max-width: 1200px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-text {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.welcome-text h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.welcome-text p {
+  font-size: 20px;
+}
+
+.signup-container {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 30px;
+  border-radius: 8px;
+  width: 350px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.signup-container h2 {
+  color: #5c1137;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.role-selector {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  color: #333;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.role-btn:first-child {
+  margin-right: 5px;
+}
+
+.role-btn:last-child {
+  margin-left: 5px;
+}
+
+.role-btn.active {
+  background-color: #a12768;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #a12768;
+}
+
+.signup-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #a12768;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.signup-btn:hover {
+  background-color: #5c1137;
+}
+
+.login-link {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+}
+
+.login-link a {
+  color: #a12768;
+  text-decoration: none;
+}

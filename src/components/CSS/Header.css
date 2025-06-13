@@ -1,0 +1,45 @@
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 5%; /* 👈 This is good. Keep it. */
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  padding-left: 10px; /* 👈 This ensures space from the edge */
+}
+
+
+.profile-links {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* <- This adds space between Profile and Login */
+}
+
+.profile-links a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #333;
+}
+
+.auth-btn {
+  background: linear-gradient(135deg, #d32f7b 0%, #8a1253 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
