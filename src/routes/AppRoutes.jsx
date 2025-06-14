@@ -23,6 +23,8 @@ export default function AppRoutes() {
       <Route path="/attendee/dashboard" element={<AttendeeDashboard />} />
       <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
       <Route path="/organizer/create-event" element={<OrganizerCreateEvent />} />
+      <Route path="/organizer/events/:eventId" element={<EventDetail />} />
+
       {<Route path="*" element={<NotFound />} />}
       {/* Add the rest of the routes here */}
     </Routes>
