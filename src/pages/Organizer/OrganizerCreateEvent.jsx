@@ -1,32 +1,55 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './CSS/OrganizerCreateEvent.css';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
 const CreateEvent = () => {
+  const { token } = useAuth();
   const [fileName, setFileName] = useState('Click to upload or drag and drop');
+  const [imageFile, setImageFile] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    location: '',
+    start_time: '',
+    end_time: '',
+    price: '',
+    total_tickets: '',
+  });
+
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const now = new Date();
     const formatDateTime = (date) => date.toISOString().slice(0, 16);
-
-    document.getElementById('startDateTime').value = formatDateTime(now);
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-    document.getElementById('endDateTime').value = formatDateTime(oneHourLater);
+    setFormData((prev) => ({
+      ...prev,
+      start_time: formatDateTime(now),
+      end_time: formatDateTime(new Date(now.getTime() + 3600000)),
+    }));
   }, []);
+
+  const handleInputChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size exceeds 5MB limit. Please choose a smaller file.');
+        alert('File size exceeds 5MB limit.');
         e.target.value = '';
         setFileName('Click to upload or drag and drop');
+        setImageFile(null);
       } else {
         setFileName(file.name);
+        setImageFile(file); // ✅ Save file to state
       }
     }
   };
@@ -41,110 +64,186 @@ const CreateEvent = () => {
   };
 
   const handleCancel = () => {
-    if (window.confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
-      navigate('/events');
+    if (window.confirm('Cancel event creation?')) {
+      navigate('/organizer/dashboard');
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Event created successfully!');
-    e.target.reset();
-    setFileName('Click to upload or drag and drop');
+
+    const form = new FormData();
+    form.append('title', formData.title);
+    form.append('description', formData.description);
+    form.append('location', formData.location);
+    form.append('start_time', formData.start_time);
+    form.append('end_time', formData.end_time);
+    form.append('price', formData.price);
+    form.append('total_tickets', formData.total_tickets);
+    form.append('category_id', 1);
+    if (imageFile) {
+      form.append('image', imageFile);
+    }
+
+    try {
+      const res = await fetch('http://localhost:5000/organizer/events', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert('Event created successfully!');
+        navigate('/organizer/dashboard');
+      } else {
+        alert(result.message || 'Failed to create event.');
+      }
+    } catch (err) {
+      console.error('Create event error:', err);
+      alert('An error occurred. Please try again.');
+    }
   };
 
   return (
     <>
-    <Header />
-    
-    <div className="create-event-container">
-      <h1 className="create-event-title">Create a New Event</h1>
-      <p className="create-event-subtitle">
-        Fill out the details below to publish your event. Make sure everything is accurate — these details will be shown to attendees.
-      </p>
+      <Header />
+      <div className="create-event-container">
+        <h1 className="create-event-title">Create a New Event</h1>
+        <p className="create-event-subtitle">Fill out the details below to publish your event.</p>
 
-      <form onSubmit={handleSubmit} id="eventForm">
-        {/* Event Title */}
-        <div className="form-group">
-          <label className="form-label">Event Title</label>
-          <p className="form-hint">Example: "Tech Innovation Summit 2022"</p>
-          <input type="text" className="form-input" placeholder="Event Title" required />
-        </div>
-
-        {/* Description */}
-        <div className="form-group">
-          <label className="form-label">Event Description</label>
-          <p className="form-hint">Include agenda, speakers, or anything attendees need to know.</p>
-          <textarea className="form-textarea" placeholder="Event Description" required></textarea>
-        </div>
-
-        {/* Image */}
-        <div className="form-group">
-          <label className="form-label">Event Banner / Image</label>
-          <p className="form-hint">JPEG or PNG (max 5MB)</p>
-          <div
-            className="file-upload"
-            onClick={() => fileInputRef.current.click()}
-            onDragOver={(e) => e.preventDefault()}
-            onDragLeave={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-          >
-            <div className="file-upload-icon">📷</div>
-            <div className="file-upload-text">{fileName}</div>
-            <div className="file-upload-hint">JPEG or PNG (max 5MB)</div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Event Title</label>
             <input
-              type="file"
-              accept="image/jpeg,image/png"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
+              type="text"
+              name="title"
+              className="form-input"
+              placeholder="Event Title"
+              required
+              value={formData.title}
+              onChange={handleInputChange}
             />
           </div>
-        </div>
 
-        {/* Location */}
-        <div className="form-group">
-          <label className="form-label">Location</label>
-          <p className="form-hint">Physical address or write "Online"</p>
-          <input type="text" className="form-input" placeholder="Location or 'Online'" required />
-        </div>
+          <div className="form-group">
+            <label className="form-label">Event Description</label>
+            <textarea
+              name="description"
+              className="form-textarea"
+              placeholder="Description"
+              required
+              value={formData.description}
+              onChange={handleInputChange}
+            />
+          </div>
 
-        {/* Date & Time */}
-        <div className="form-group">
-          <label className="form-label">Date & Time</label>
-          <div className="datetime-inputs">
-            <div className="datetime-group">
-              <label className="form-label">Start Date & Time</label>
-              <input type="datetime-local" className="form-input" id="startDateTime" required />
-            </div>
-            <div className="datetime-group">
-              <label className="form-label">End Date & Time</label>
-              <input type="datetime-local" className="form-input" id="endDateTime" required />
+          <div className="form-group">
+            <label className="form-label">Event Banner / Image</label>
+            <div
+              className="file-upload"
+              onClick={() => fileInputRef.current.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDragLeave={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
+              <div className="file-upload-icon">📷</div>
+              <div className="file-upload-text">{fileName}</div>
+              <div className="file-upload-hint">JPEG or PNG (max 5MB)</div>
+              <input
+                type="file"
+                accept="image/jpeg,image/png"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
             </div>
           </div>
-        </div>
 
-        {/* Ticket Price */}
-        <div className="form-group">
-          <label className="form-label">Ticket Price</label>
-          <p className="form-hint">Use "0" if it's a free event</p>
-          <input type="number" className="form-input" placeholder="0.00" min="0" step="0.01" required />
-        </div>
+          <div className="form-group">
+            <label className="form-label">Location</label>
+            <input
+              type="text"
+              name="location"
+              className="form-input"
+              placeholder="e.g., HTU Campus or 'Online'"
+              required
+              value={formData.location}
+              onChange={handleInputChange}
+            />
+          </div>
 
-        {/* Total Tickets */}
-        <div className="form-group">
-          <label className="form-label">Total Tickets Available</label>
-          <input type="number" className="form-input" placeholder="Number of Tickets" min="1" required />
-        </div>
+          <div className="form-group">
+            <label className="form-label">Date & Time</label>
+            <div className="datetime-inputs">
+              <div className="datetime-group">
+                <label>Start</label>
+                <input
+                  type="datetime-local"
+                  name="start_time"
+                  className="form-input"
+                  required
+                  value={formData.start_time}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="datetime-group">
+                <label>End</label>
+                <input
+                  type="datetime-local"
+                  name="end_time"
+                  className="form-input"
+                  required
+                  value={formData.end_time}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+          </div>
 
-        {/* Buttons */}
-        <div className="form-actions">
-          <button type="button" className="cancel-btn" onClick={handleCancel}>Cancel</button>
-          <button type="submit" className="submit-btn">Add Event</button>
-        </div>
-      </form>
-    </div>
-    <Footer />
+          <div className="form-group">
+            <label className="form-label">Ticket Price</label>
+            <input
+              type="number"
+              name="price"
+              className="form-input"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              required
+              value={formData.price}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Total Tickets</label>
+            <input
+              type="number"
+              name="total_tickets"
+              className="form-input"
+              placeholder="e.g., 100"
+              min="1"
+              required
+              value={formData.total_tickets}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="cancel-btn" onClick={handleCancel}>
+              Cancel
+            </button>
+            <button type="submit" className="submit-btn">
+              Add Event
+            </button>
+          </div>
+        </form>
+      </div>
+      <Footer />
     </>
   );
 };
