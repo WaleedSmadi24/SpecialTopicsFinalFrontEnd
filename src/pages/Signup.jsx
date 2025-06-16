@@ -7,6 +7,8 @@ const Signup = () => {
   const { register } = useAuth();
 
   const [role, setRole] = useState('attendee');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,7 +18,8 @@ const Signup = () => {
     setError('');
 
     try {
-      await register(email, password, role);
+      const fullName = `${firstName} ${lastName}`;
+      await register(fullName, email, password, role);
     } catch (err) {
       setError('Signup failed. Please try again.');
     }
@@ -49,6 +52,26 @@ const Signup = () => {
           </div>
 
           <form onSubmit={handleSignup}>
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
+
             <div className="form-group">
               <input
                 type="email"

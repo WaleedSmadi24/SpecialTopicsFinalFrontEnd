@@ -29,27 +29,27 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, role) => {
     const res = await fetch('http://localhost:5000/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password }),
-});
-
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
     if (!res.ok) throw new Error('Login failed');
 
     const data = await res.json();
     setUser(data.user);
     setToken(data.token);
+    localStorage.setItem('user', JSON.stringify(data.user)); // ✅ immediately save
 
     if (data.user.role === 'organizer') navigate('/organizer/dashboard');
     else navigate('/attendee/dashboard');
   };
 
-  const register = async (email, password, role) => {
+  const register = async (name, email, password, role) => {
     const res = await fetch('http://localhost:5000/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password , role }),
+      body: JSON.stringify({ name, email, password, role }),
     });
 
     if (!res.ok) throw new Error('Signup failed');
@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
     const data = await res.json();
     setUser(data.user);
     setToken(data.token);
+    localStorage.setItem('user', JSON.stringify(data.user)); // ✅ immediately save
 
     if (data.user.role === 'organizer') navigate('/organizer/dashboard');
     else navigate('/attendee/dashboard');
@@ -69,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

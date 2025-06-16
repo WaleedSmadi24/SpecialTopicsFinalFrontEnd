@@ -7,6 +7,7 @@ import Footer from '../../components/Footer';
 
 const CreateEvent = () => {
   const { token } = useAuth();
+  const [categories, setCategories] = useState([]);
   const [fileName, setFileName] = useState('Click to upload or drag and drop');
   const [imageFile, setImageFile] = useState(null);
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const CreateEvent = () => {
     end_time: '',
     price: '',
     total_tickets: '',
+    category_id: ''
   });
 
   const fileInputRef = useRef(null);
@@ -30,6 +32,19 @@ const CreateEvent = () => {
       start_time: formatDateTime(now),
       end_time: formatDateTime(new Date(now.getTime() + 3600000)),
     }));
+
+    const loadCategories = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/events/categories');
+        const data = await res.json();
+        setCategories(data);
+        setFormData(prev => ({ ...prev, category_id: data[0]?.id || '' }));
+      } catch (err) {
+        console.error('Failed to load categories', err);
+      }
+    };
+
+    loadCategories();
   }, []);
 
   const handleInputChange = (e) => {
@@ -49,7 +64,7 @@ const CreateEvent = () => {
         setImageFile(null);
       } else {
         setFileName(file.name);
-        setImageFile(file); // ✅ Save file to state
+        setImageFile(file);
       }
     }
   };
@@ -80,7 +95,7 @@ const CreateEvent = () => {
     form.append('end_time', formData.end_time);
     form.append('price', formData.price);
     form.append('total_tickets', formData.total_tickets);
-    form.append('category_id', 1);
+    form.append('category_id', formData.category_id);
     if (imageFile) {
       form.append('image', imageFile);
     }
@@ -161,6 +176,22 @@ const CreateEvent = () => {
                 style={{ display: 'none' }}
               />
             </div>
+          </div>
+
+          {/* 🆕 Category Selector */}
+          <div className="form-group">
+            <label className="form-label">Event Category</label>
+            <select
+              name="category_id"
+              className="form-input"
+              required
+              value={formData.category_id}
+              onChange={handleInputChange}
+            >
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
