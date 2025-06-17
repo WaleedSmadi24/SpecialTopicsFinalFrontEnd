@@ -23,8 +23,13 @@ nav {
 .profile-links a {
   text-decoration: none;
   font-weight: 500;
-  color: #333;
+  color: #333; 
 }
+
+.profile-links a:hover {
+  color: #8a1253;
+}
+
 
 .auth-btn {
   background: linear-gradient(135deg, #d32f7b 0%, #8a1253 100%);
@@ -42,4 +47,13 @@ nav {
   margin: 0 auto;
   padding: 0 20px;
 }
+
+.profile-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
 

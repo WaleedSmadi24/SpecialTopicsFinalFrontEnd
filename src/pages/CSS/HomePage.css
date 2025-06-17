@@ -105,6 +105,7 @@ nav {
 .platform-features h2 {
   font-size: 1.8rem;
   margin-bottom: 15px;
+  color: white;
 }
 
 .platform-features p {
@@ -147,18 +148,26 @@ nav {
 .feature-card {
   background: linear-gradient(135deg, #8a1253 0%, #5f0b48 100%);
   color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 260px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px 20px;
+  border-radius: 20px;
+  width: 280px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.6;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  font-size: 1rem;
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
 }
+
 
 .action-button {
   background: linear-gradient(135deg, #d32f7b 0%, #8a1253 100%);

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import './CSS/AttendeeDB.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { Link } from 'react-router-dom';
 
 const getBadgeClass = (type) => {
   switch (type?.toLowerCase()) {
@@ -20,32 +21,30 @@ const AttendeeDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const fetchTickets = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/tickets/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+    const fetchTickets = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/tickets/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      // Check if response is a valid array
-      if (Array.isArray(data)) {
-        setTickets(data);
-      } else {
-        console.error('Expected an array but got:', data);
+        if (Array.isArray(data)) {
+          setTickets(data);
+        } else {
+          console.error('Expected an array but got:', data);
+          setTickets([]);
+        }
+      } catch (err) {
+        console.error('Error fetching tickets:', err);
         setTickets([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error fetching tickets:', err);
-      setTickets([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchTickets();
-}, [token]);
-
+    fetchTickets();
+  }, [token]);
 
   const handleDownload = async (ticketId) => {
     try {
@@ -67,6 +66,14 @@ const AttendeeDashboard = () => {
     }
   };
 
+  const totalSpent = tickets.reduce((sum, t) => {
+    const price = t.price || 0;
+    const qty = t.quantity || 0;
+    const base = qty * price;
+    const tax = base * 0.15;
+    return sum + base + tax;
+  }, 0);
+
   return (
     <>
       <Header />
@@ -83,8 +90,8 @@ const AttendeeDashboard = () => {
             <p>{tickets.length}</p>
           </div>
           <div className="card">
-            <h3>Tickets Refunded</h3>
-            <p>0</p>
+            <span className="dashboard-value">{totalSpent.toFixed(2)} JD</span>
+            <span className="dashboard-label">Total Spent</span>
           </div>
         </div>
 
@@ -97,21 +104,38 @@ const AttendeeDashboard = () => {
           ) : (
             <div className="events-list">
               {tickets.map(ticket => (
-                <div key={ticket.ticket_id} className="event-card">
-                  <img src="/images/ticket.jpg" alt={ticket.event_title} className="event-image" />
-                  <div className="event-info">
-                    <span className={`event-badge ${getBadgeClass(ticket.event_title)}`}>
-                      {ticket.event_title}
-                    </span>
-                    <h4>{ticket.event_title}</h4>
-                    <p>{new Date(ticket.event_date).toLocaleString()}</p>
-                    <p>{ticket.location}</p>
-                    <p>Quantity: {ticket.quantity}</p>
-                    <button className="download-btn" onClick={() => handleDownload(ticket.ticket_id)}>
-                      Download Ticket (PDF)
-                    </button>
+                <Link
+                  to={`/events/${ticket.event_id}`}
+                  key={ticket.ticket_id}
+                  className="event-card-link"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <div className="event-card">
+                    <img
+                      src={`http://localhost:5000${ticket.image_url}`}
+                      alt={ticket.event_title}
+                      className="ticket-image"
+                    />
+                    <div className="event-info">
+                      <span className={`event-badge ${getBadgeClass(ticket.event_title)}`}>
+                        {ticket.event_title}
+                      </span>
+                      <h4>{ticket.event_title}</h4>
+                      <p>{new Date(ticket.event_date).toLocaleString()}</p>
+                      <p>{ticket.location}</p>
+                      <p>Quantity: {ticket.quantity}</p>
+                      <button
+                        className="download-btn"
+                        onClick={(e) => {
+                          e.preventDefault(); // Prevent navigation on button click
+                          handleDownload(ticket.ticket_id);
+                        }}
+                      >
+                        Download Ticket (PDF)
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
