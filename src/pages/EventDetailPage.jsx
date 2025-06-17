@@ -13,8 +13,11 @@ const EventDetail = () => {
   const [eventData, setEventData] = useState(null);
   const [quantity, setQuantity] = useState(2);
   const [showPopup, setShowPopup] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editForm, setEditForm] = useState({});
+  const [images, setImages] = useState([]);
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [newImages, setNewImages] = useState([]);
+  const [removedImageUrls, setRemovedImageUrls] = useState([]);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -22,76 +25,46 @@ const EventDetail = () => {
         const res = await fetch(`http://localhost:5000/events/${eventId}`);
         const data = await res.json();
         setEventData(data);
-        setEditForm({
+        setFormData({
           title: data.title,
           description: data.description,
           location: data.location,
-          start_time: data.start_time?.slice(0, 16),
-          end_time: data.end_time?.slice(0, 16),
-          total_tickets: data.total_tickets,
-          price: data.price
+          start_time: data.start_time,
+          end_time: data.end_time,
+          price: data.price,
+          total_tickets: data.total_tickets
         });
       } catch (err) {
         console.error('Error fetching event:', err);
       }
     };
 
+    const fetchImages = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/events/${eventId}/images`);
+        const data = await res.json();
+        setImages(data.map(img => img.image_url));
+      } catch (err) {
+        console.error('Error fetching images:', err);
+      }
+    };
+
     fetchEvent();
+    fetchImages();
   }, [eventId]);
 
-  const isOwnerOrganizer =
-    user?.role === 'organizer' && user?.id === eventData?.organizer_id;
-
-  const handleEditChange = (e) => {
-    setEditForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`http://localhost:5000/organizer/events/${eventId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(editForm)
-      });
-
-      const result = await res.json();
-      if (res.ok) {
-        alert('Event updated.');
-        setEventData(result);
-        setEditing(false);
-      } else {
-        alert(result.message || 'Failed to update.');
-      }
-    } catch (err) {
-      console.error('Update error:', err);
-      alert('Error updating event.');
-    }
-  };
-
+  const isOwnerOrganizer = user?.role === 'organizer' && user?.id === eventData?.organizer_id;
   const ticketPrice = typeof eventData?.price === 'number' ? eventData.price : 50;
   const taxRate = 0.15;
   const subtotal = quantity * ticketPrice;
   const total = subtotal + subtotal * taxRate;
-
-  const isPastEvent = eventData && new Date(eventData.date || eventData.start_time) < new Date();
+  const isPastEvent = eventData && new Date(eventData.start_time) < new Date();
   const ticketsLeft = eventData ? eventData.total_tickets - (eventData.tickets_sold || 0) : null;
 
   const handleCheckout = async () => {
-    if (!user) {
-      alert('You must be logged in to purchase tickets.');
-      return;
-    }
-
+    if (!user) return alert('You must be logged in to purchase tickets.');
     if (ticketsLeft !== null && quantity > ticketsLeft) {
-      alert(`Only ${ticketsLeft} ticket(s) remaining. Please reduce your quantity.`);
-      return;
+      return alert(`Only ${ticketsLeft} ticket(s) remaining. Please reduce your quantity.`);
     }
 
     try {
@@ -109,7 +82,6 @@ const EventDetail = () => {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         alert('Ticket(s) purchased successfully!');
         setShowPopup(false);
@@ -123,6 +95,51 @@ const EventDetail = () => {
     }
   };
 
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await fetch(`http://localhost:5000/events/${eventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (removedImageUrls.length > 0) {
+        await fetch(`http://localhost:5000/events/${eventId}/images/delete`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ urls: removedImageUrls })
+        });
+      }
+
+      if (newImages.length > 0) {
+        const form = new FormData();
+        newImages.forEach((file) => form.append('images', file));
+
+        await fetch(`http://localhost:5000/events/${eventId}/images`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: form
+        });
+      }
+
+      alert('Event updated successfully!');
+      setEditMode(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Error updating event:', err);
+      alert('Update failed.');
+    }
+  };
+
   return (
     <>
       <Header />
@@ -132,13 +149,12 @@ const EventDetail = () => {
             <>
               <h1 className="event-title">{eventData.title}</h1>
               <p className="event-meta">{eventData.category_name || 'Event'}</p>
-              <div className="event-date-time">{new Date(eventData.date || eventData.start_time).toLocaleString()}</div>
+              <div className="event-date-time">{new Date(eventData.start_time).toLocaleString()}</div>
               <div className="event-location">{eventData.location}</div>
 
-              {/* ✅ Organizer-only controls */}
-              {isOwnerOrganizer && !editing && (
+              {isOwnerOrganizer && (
                 <div className="organizer-tools">
-                  <button onClick={() => setEditing(true)}>Edit Event</button>
+                  <button onClick={() => setEditMode(true)}>Edit Event</button>
                   <button onClick={() => navigate(`/organizer/events/${eventData.id}/tickets`)}>View Ticket Sales</button>
                 </div>
               )}
@@ -147,69 +163,81 @@ const EventDetail = () => {
             <p>Loading event details...</p>
           )}
         </div>
-        {!editing && (
-          <div className="ticket-qr">
-            <button
-              className="buy-ticket-btn"
-              onClick={() => setShowPopup(true)}
-              disabled={isPastEvent}
-            >
-              Buy Ticket Now
-            </button>
-          </div>
-        )}
+
+        <div className="ticket-qr">
+          <button
+            className="buy-ticket-btn"
+            onClick={() => setShowPopup(true)}
+            disabled={isPastEvent}
+          >
+            Buy Ticket Now
+          </button>
+        </div>
       </div>
 
-      {editing && (
-        <div className="edit-event-form">
-          <h3>Edit Event</h3>
-          <form onSubmit={handleEditSubmit}>
-            <input name="title" value={editForm.title} onChange={handleEditChange} placeholder="Title" required />
-            <textarea name="description" value={editForm.description} onChange={handleEditChange} placeholder="Description" required />
-            <input name="location" value={editForm.location} onChange={handleEditChange} placeholder="Location" required />
-            <input name="start_time" type="datetime-local" value={editForm.start_time} onChange={handleEditChange} required />
-            <input name="end_time" type="datetime-local" value={editForm.end_time} onChange={handleEditChange} required />
-            <input name="price" type="number" step="0.01" value={editForm.price} onChange={handleEditChange} required />
-            <input name="total_tickets" type="number" value={editForm.total_tickets} onChange={handleEditChange} required />
-            <div className="edit-buttons">
-              <button type="submit">Save Changes</button>
-              <button type="button" onClick={() => setEditing(false)}>Cancel</button>
-            </div>
-          </form>
+      {/* Image slider or fallback image */}
+      {eventData && (
+        <div className="event-content-wrapper">
+          <div className="event-image-column">
+            {images.length > 0 ? (
+              <div className="event-slider">
+                {images.map((url, idx) => (
+                  <img
+                    key={idx}
+                    src={`http://localhost:5000${url}`}
+                    alt={`Slide ${idx + 1}`}
+                    className="slider-image"
+                  />
+                ))}
+              </div>
+            ) : (
+              eventData.image_url && (
+                <img
+                  src={`http://localhost:5000${eventData.image_url}`}
+                  alt={eventData.title}
+                  className="full-event-image"
+                />
+              )
+            )}
+          </div>
+
+          <div className="event-description-box">
+            <h2 className="section-title">Event Details</h2>
+            {editMode ? (
+              <form onSubmit={handleEditSubmit} className="edit-event-form">
+                <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Title" />
+                <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Description" />
+                <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} placeholder="Location" />
+                <input type="datetime-local" value={formData.start_time} onChange={(e) => setFormData({ ...formData, start_time: e.target.value })} />
+                <input type="datetime-local" value={formData.end_time} onChange={(e) => setFormData({ ...formData, end_time: e.target.value })} />
+                <input type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} placeholder="Price" />
+                <input type="number" value={formData.total_tickets} onChange={(e) => setFormData({ ...formData, total_tickets: e.target.value })} placeholder="Total Tickets" />
+                <input type="file" multiple onChange={(e) => setNewImages(Array.from(e.target.files))} />
+                <button type="submit">Save Changes</button>
+                <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
+              </form>
+            ) : (
+              <p>{eventData.description || 'No description available.'}</p>
+            )}
+          </div>
         </div>
       )}
 
-      {!editing && (
-        <>
-          <section className="event-details-section">
-            <h2 className="section-title">Event Details</h2>
-            <p className="event-description">
-              {eventData?.description || 'No description available.'}
-            </p>
-          </section>
-
-          <section className="event-media-section">
-            <h2 className="section-title">Event Photos and Videos</h2>
-            <div className="video-container">
-              <div className="video-placeholder" onClick={() => alert('Simulated video player')}>
-                <div className="play-button" />
-              </div>
-              <div className="video-controls">
-                <span>▶️</span>
-                <span className="video-time">01:45 / 03:26</span>
-                <div className="progress-bar" />
-                <div className="volume-control">
-                  <span>🔊</span>
-                </div>
-              </div>
-            </div>
-            <div className="channel-info">
-              <div className="channel-avatar">E</div>
-              <div className="channel-name">Eventify Media</div>
-              <button className="subscribe-btn">SUBSCRIBE</button>
-            </div>
-          </section>
-        </>
+      {!showPopup && eventData && (
+        <div className="organizer-contact-card">
+          {eventData.organizer_profile_image && (
+            <img
+              src={`http://localhost:5000${eventData.organizer_profile_image}`}
+              alt="Organizer"
+              className="organizer-avatar"
+            />
+          )}
+          <div className="organizer-contact-info">
+            <h3>Organizer Contact</h3>
+            <p><strong>Name:</strong> {eventData.organizer_name || 'N/A'}</p>
+            <p><strong>Email:</strong> {eventData.organizer_email || 'N/A'}</p>
+          </div>
+        </div>
       )}
 
       {showPopup && (
@@ -223,29 +251,15 @@ const EventDetail = () => {
             <div className="ticket-type">
               <span className="ticket-name">Normal Ticket</span>
               <div className="ticket-quantity">
-                <button
-                  className="quantity-btn"
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                >-</button>
+                <button className="quantity-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
                 <span className="quantity-value">{quantity}</span>
-                <button
-                  className="quantity-btn"
-                  onClick={() => setQuantity(q => Math.min(ticketsLeft, q + 1))}
-                  disabled={quantity >= ticketsLeft}
-                >+</button>
+                <button className="quantity-btn" onClick={() => setQuantity(q => Math.min(ticketsLeft, q + 1))} disabled={quantity >= ticketsLeft}>+</button>
               </div>
-              {ticketsLeft !== null && (
-                <p className="remaining-note">
-                  Max you can buy: {ticketsLeft}
-                </p>
-              )}
+              {ticketsLeft !== null && <p className="remaining-note">Max you can buy: {ticketsLeft}</p>}
             </div>
 
             <div className="sale-info">
-              {typeof eventData?.price === 'number'
-                ? `${eventData.price.toFixed(2)} JD +15% tax`
-                : ''}
-              <br />
+              {typeof eventData?.price === 'number' && `${eventData.price.toFixed(2)} JD +15% tax`}<br />
               {ticketsLeft !== null && <strong>{ticketsLeft} ticket(s) remaining</strong>}
             </div>
 
@@ -254,14 +268,6 @@ const EventDetail = () => {
               <div className="summary-row">
                 <span>{quantity} x Normal Ticket</span>
                 <span>{!isNaN(subtotal) ? subtotal.toFixed(2) : '0.00'} JD</span>
-              </div>
-              <div className="summary-row">
-                <span>Subtotal</span>
-                <span>{!isNaN(subtotal) ? subtotal.toFixed(2) : '0.00'} JD</span>
-              </div>
-              <div className="summary-row">
-                <span>Fees</span>
-                <span>{(taxRate * 100).toFixed(0)}%</span>
               </div>
               <div className="summary-row total-row">
                 <span>Total</span>
