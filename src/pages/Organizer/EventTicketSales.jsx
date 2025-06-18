@@ -14,7 +14,7 @@ const EventTicketSales = () => {
   useEffect(() => {
     const fetchSales = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/tickets/events/${eventId}/tickets/sales`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/tickets/events/${eventId}/tickets/sales`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

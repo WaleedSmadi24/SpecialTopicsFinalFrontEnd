@@ -101,7 +101,7 @@ const CreateEvent = () => {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/organizer/events', {
+      const res = await fetch('${process.env.REACT_APP_API_URL}/organizer/events', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

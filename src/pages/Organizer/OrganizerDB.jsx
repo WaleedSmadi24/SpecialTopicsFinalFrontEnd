@@ -23,7 +23,7 @@ const OrganizerDashboard = () => {
   useEffect(() => {
   const fetchEvents = async () => {
     try {
-      const res = await fetch('http://localhost:5000/organizer/events', {
+      const res = await fetch('${process.env.REACT_APP_API_URL}/organizer/events', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -42,7 +42,7 @@ const OrganizerDashboard = () => {
   fetchEvents();
   const fetchStats = async () => {
   try {
-    const res = await fetch('http://localhost:5000/organizer/stats', {
+    const res = await fetch('${process.env.REACT_APP_API_URL}/organizer/stats', {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();

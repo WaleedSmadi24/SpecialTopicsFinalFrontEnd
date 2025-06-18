@@ -11,7 +11,7 @@ export default function Home() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => {
-  fetch('http://localhost:5000/events')
+  fetch('${process.env.REACT_APP_API_URL}/events')
     .then((res) => res.json())
     .then((data) => {
       const now = new Date().getTime();
@@ -109,7 +109,7 @@ const handleCreateEventClick = () => {
         >
           <div className="event-card">
             <img
-  src={`http://localhost:5000${event.image_url}`}
+  src={`${process.env.REACT_APP_API_URL}${event.image_url}`}
   alt={event.title}
   className="event-img"
 />

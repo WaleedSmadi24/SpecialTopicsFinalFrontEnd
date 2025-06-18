@@ -26,7 +26,7 @@ const EventDetail = () => {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/events/${eventId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}`);
         const data = await res.json();
         setEventData(data);
         setFormData({
@@ -45,7 +45,7 @@ const EventDetail = () => {
 
     const fetchImages = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/events/${eventId}/images`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}/images`);
         const data = await res.json();
         setImages(data.map(img => img.image_url));
       } catch (err) {
@@ -59,7 +59,7 @@ const EventDetail = () => {
     const fetchUserTickets = async () => {
   if (user?.id && eventId) {
     try {
-      const res = await fetch(`http://localhost:5000/tickets/purchased?user_id=${user.id}&event_id=${eventId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/tickets/purchased?user_id=${user.id}&event_id=${eventId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -93,7 +93,7 @@ fetchUserTickets();
     }
 
     try {
-      const res = await fetch('http://localhost:5000/tickets', {
+      const res = await fetch('${process.env.REACT_APP_API_URL}/tickets', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ fetchUserTickets();
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await fetch(`http://localhost:5000/events/${eventId}`, {
+      await fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ fetchUserTickets();
       });
 
       if (removedImageUrls.length > 0) {
-        await fetch(`http://localhost:5000/events/${eventId}/images/delete`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}/images/delete`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ fetchUserTickets();
         const form = new FormData();
         newImages.forEach((file) => form.append('images', file));
 
-        await fetch(`http://localhost:5000/events/${eventId}/images`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}/images`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`
@@ -212,7 +212,7 @@ fetchUserTickets();
                 {images.map((url, idx) => (
                   <img
                     key={idx}
-                    src={`http://localhost:5000${url}`}
+                    src={`${process.env.REACT_APP_API_URL}${url}`}
                     alt={`Slide ${idx + 1}`}
                     className="slider-image"
                   />
@@ -221,7 +221,7 @@ fetchUserTickets();
             ) : (
               eventData.image_url && (
                 <img
-                  src={`http://localhost:5000${eventData.image_url}`}
+                  src={`${process.env.REACT_APP_API_URL}${eventData.image_url}`}
                   alt={eventData.title}
                   className="full-event-image"
                 />
@@ -255,7 +255,7 @@ fetchUserTickets();
         <div className="organizer-contact-card">
           {eventData.organizer_profile_image && (
             <img
-              src={`http://localhost:5000${eventData.organizer_profile_image}`}
+              src={`${process.env.REACT_APP_API_URL}${eventData.organizer_profile_image}`}
               alt="Organizer"
               className="organizer-avatar"
             />

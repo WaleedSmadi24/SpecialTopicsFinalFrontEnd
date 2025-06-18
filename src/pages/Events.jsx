@@ -10,7 +10,7 @@ export default function Events() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch('http://localhost:5000/events');
+        const res = await fetch('${process.env.REACT_APP_API_URL}/events');
         const data = await res.json();
         console.log('Fetched events:', data); // 👈 Add this
         const grouped = { Musical: [], Sports: [], Tech: [] };
@@ -71,7 +71,7 @@ export default function Events() {
                   <div className="event-card" key={event.id}>
                     <div className="event-img-container">
                       <img
-                        src={event.image_url ? `http://localhost:5000${event.image_url}` : require('../assets/default.jpg')}
+                        src={event.image_url ? `${process.env.REACT_APP_API_URL}${event.image_url}` : require('../assets/default.jpg')}
                         alt={event.title}
                         className="event-img"
                       />

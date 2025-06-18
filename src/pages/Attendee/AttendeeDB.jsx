@@ -23,7 +23,7 @@ const AttendeeDashboard = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const res = await fetch('http://localhost:5000/tickets/me', {
+        const res = await fetch('${process.env.REACT_APP_API_URL}/tickets/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
 

@@ -17,7 +17,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user?.profile_image) {
-      setPhoto(`http://localhost:5000${user.profile_image}`);
+      setPhoto(`${process.env.REACT_APP_API_URL}${user.profile_image}`);
     }
   }, [user]);
 
@@ -31,7 +31,7 @@ const ProfilePage = () => {
     formData.append('image', file);
 
     try {
-      const res = await fetch(`http://localhost:5000/auth/upload-profile-image/${user.id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/upload-profile-image/${user.id}`, {
         method: 'POST',
         body: formData,
       });
@@ -39,7 +39,7 @@ const ProfilePage = () => {
       if (!res.ok) throw new Error('Failed to upload image');
 
       const data = await res.json();
-      const fullUrl = `http://localhost:5000${data.user.profile_image}`;
+      const fullUrl = `${process.env.REACT_APP_API_URL}${data.user.profile_image}`;
       setPhoto(fullUrl);
       setUser(data.user);
       localStorage.setItem('user', JSON.stringify(data.user));
@@ -51,7 +51,7 @@ const ProfilePage = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:5000/auth/update-profile/${user.id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/update-profile/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, profile_image: user.profile_image }),
