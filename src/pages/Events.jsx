@@ -8,31 +8,35 @@ export default function Events() {
   const [events, setEvents] = useState({ Musical: [], Sports: [], Tech: [] });
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/events`);
-        const data = await res.json();
-        const grouped = { Musical: [], Sports: [], Tech: [] };
+  const fetchEvents = async () => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/events`);
+      const data = await res.json();
 
-        data.forEach((event) => {
-          const name = event.category_name?.toLowerCase() || '';
-          if (name.includes('tech')) grouped.Tech.push(event);
-          else if (name.includes('music')) grouped.Musical.push(event);
-          else if (name.includes('sport')) grouped.Sports.push(event);
-        });
+      const grouped = { Musical: [], Sports: [], Tech: [] };
 
-        for (const key in grouped) {
-          grouped[key] = shuffleArray(grouped[key]);
-        }
+      data.forEach((event) => {
+        const name = event.category_name?.toLowerCase() || '';
 
-        setEvents(grouped);
-      } catch (err) {
-        console.error('Failed to fetch events:', err);
+        // ✅ flexible matching using includes()
+        if (name.includes('tech')) grouped.Tech.push(event);
+        else if (name.includes('music')) grouped.Musical.push(event);
+        else if (name.includes('sport')) grouped.Sports.push(event);
+      });
+
+      for (const key in grouped) {
+        grouped[key] = shuffleArray(grouped[key]);
       }
-    };
 
-    fetchEvents();
-  }, []);
+      setEvents(grouped);
+    } catch (err) {
+      console.error('Failed to fetch events:', err);
+    }
+  };
+
+  fetchEvents();
+}, []);
+
 
   const shuffleArray = (arr) => {
     const array = [...arr];
