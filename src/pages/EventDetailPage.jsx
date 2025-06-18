@@ -17,7 +17,6 @@ const EventDetail = () => {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [newImages, setNewImages] = useState([]);
-  const [removedImageUrls, setRemovedImageUrls] = useState([]);
   const isOrganizer = user?.role === 'organizer';
   const [alreadyBought, setAlreadyBought] = useState(0);
 
@@ -73,7 +72,7 @@ const EventDetail = () => {
 };
 fetchUserTickets();
 
-  }, [eventId]);
+  }, [eventId, token, user?.id]);
 
   const isOwnerOrganizer = user?.role === 'organizer' && user?.id === eventData?.organizer_id;
   const ticketPrice = !isNaN(parseFloat(eventData?.price)) ? parseFloat(eventData.price) : 50;
@@ -93,7 +92,7 @@ fetchUserTickets();
     }
 
     try {
-      const res = await fetch('${process.env.REACT_APP_API_URL}/tickets', {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/tickets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,17 +130,6 @@ fetchUserTickets();
         },
         body: JSON.stringify(formData)
       });
-
-      if (removedImageUrls.length > 0) {
-        await fetch(`${process.env.REACT_APP_API_URL}/events/${eventId}/images/delete`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({ urls: removedImageUrls })
-        });
-      }
 
       if (newImages.length > 0) {
         const form = new FormData();

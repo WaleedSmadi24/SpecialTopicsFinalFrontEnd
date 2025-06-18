@@ -10,12 +10,10 @@ export default function Events() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch('${process.env.REACT_APP_API_URL}/events');
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/events`);
         const data = await res.json();
-        console.log('Fetched events:', data); // 👈 Add this
         const grouped = { Musical: [], Sports: [], Tech: [] };
 
-        // Group by category name
         data.forEach((event) => {
           const name = event.category_name?.toLowerCase() || '';
           if (name.includes('tech')) grouped.Tech.push(event);
@@ -23,7 +21,6 @@ export default function Events() {
           else if (name.includes('sport')) grouped.Sports.push(event);
         });
 
-        // Shuffle events in each category
         for (const key in grouped) {
           grouped[key] = shuffleArray(grouped[key]);
         }
@@ -37,7 +34,6 @@ export default function Events() {
     fetchEvents();
   }, []);
 
-  // Fisher-Yates shuffle
   const shuffleArray = (arr) => {
     const array = [...arr];
     for (let i = array.length - 1; i > 0; i--) {

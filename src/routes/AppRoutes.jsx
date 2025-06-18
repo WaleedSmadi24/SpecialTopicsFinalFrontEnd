@@ -1,3 +1,4 @@
+// --- AppRoutes.jsx ---
 import { Routes, Route } from 'react-router-dom';
 import Login from '../pages/Login';
 import Signup from '../pages/Signup';
@@ -27,7 +28,7 @@ export default function AppRoutes() {
       <Route path="/organizer/create-event" element={<OrganizerCreateEvent />} />
       <Route path="/organizer/events/:eventId" element={<EventDetail />} />
       <Route path="/organizer/events/:eventId/tickets" element={<EventTicketSales />} />
-      {<Route path="*" element={<NotFound />} />}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

@@ -1,4 +1,4 @@
-// AttendeeDashboard.jsx
+// --- AttendeeDB.jsx ---
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import './CSS/AttendeeDB.css';
@@ -23,12 +23,11 @@ const AttendeeDashboard = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const res = await fetch('${process.env.REACT_APP_API_URL}/tickets/me', {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/tickets/me`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         const data = await res.json();
-
         if (Array.isArray(data)) {
           setTickets(data);
         } else {
@@ -48,18 +47,15 @@ const AttendeeDashboard = () => {
 
   const handleDownload = async (ticketId) => {
     try {
-      const response = await fetch(`http://localhost:5000/tickets/${ticketId}/download`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/tickets/${ticketId}/download`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement('a');
       link.href = url;
       link.download = `ticket-${ticketId}.pdf`;
       link.click();
-
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Download failed:', err);
@@ -67,9 +63,7 @@ const AttendeeDashboard = () => {
   };
 
   const totalSpent = tickets.reduce((sum, t) => {
-    const price = t.unit_price;
-    const qty = t.quantity;
-    const base = qty * price;
+    const base = t.quantity * t.unit_price;
     const tax = base * 0.15;
     return sum + base + tax;
   }, 0);
@@ -116,7 +110,7 @@ const AttendeeDashboard = () => {
                 >
                   <div className="event-card">
                     <img
-                      src={`http://localhost:5000${ticket.image_url}`}
+                      src={`${process.env.REACT_APP_API_URL}${ticket.image_url}`}
                       alt={ticket.event_title}
                       className="ticket-image"
                     />
@@ -131,7 +125,7 @@ const AttendeeDashboard = () => {
                       <button
                         className="download-btn"
                         onClick={(e) => {
-                          e.preventDefault(); // Prevent navigation on button click
+                          e.preventDefault();
                           handleDownload(ticket.ticket_id);
                         }}
                       >

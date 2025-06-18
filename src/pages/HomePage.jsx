@@ -1,45 +1,40 @@
+// --- HomePage.jsx ---
 import './CSS/HomePage.css';
 import Header from '../components/Header';
 import ticketImage from '../assets/Ticket-HomePage.png';
 import eventPerson from '../assets/PersonAtEvent.png';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-  fetch('${process.env.REACT_APP_API_URL}/events')
-    .then((res) => res.json())
-    .then((data) => {
-      const now = new Date().getTime();
-      const upcoming = data.filter(event => new Date(event.start_time).getTime() > now);
-      const shuffled = upcoming.sort(() => Math.random() - 0.5);
+    fetch(`${process.env.REACT_APP_API_URL}/events`)
+      .then((res) => res.json())
+      .then((data) => {
+        const now = new Date().getTime();
+        const upcoming = data.filter(event => new Date(event.start_time).getTime() > now);
+        const shuffled = upcoming.sort(() => Math.random() - 0.5);
+        setUpcomingEvents(shuffled);
+      })
+      .catch((err) => console.error('Failed to load events:', err));
+  }, []);
 
-      setUpcomingEvents(shuffled);
-    })
-    .catch((err) => console.error('Failed to load events:', err));
-}, []);
-
-const navigate = useNavigate();
-const { user } = useAuth();
-
-const handleCreateEventClick = () => {
-  if (user && user.role === 'organizer') {
-    navigate('/create-event');
-  } else {
-    navigate('/login');
-  }
-};
-
-
+  const handleCreateEventClick = () => {
+    if (user && user.role === 'organizer') {
+      navigate('/create-event');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <>
       <Header />
-
       <section className="hero">
         <div className="hero-container">
           <div className="hero-content">
@@ -89,47 +84,42 @@ const handleCreateEventClick = () => {
             </div>
           </div>
           <button className="action-button" onClick={handleCreateEventClick}>
-  Create an Event
-</button>
-
+            Create an Event
+          </button>
         </div>
       </section>
 
       <section className="upcoming-events">
-  <h2>Upcoming Events</h2>
-  {upcomingEvents.length === 0 ? (
-    <p style={{ textAlign: 'center', color: '#888' }}>No upcoming events at the moment.</p>
-  ) : (
-    <div className="events-grid">
-      {upcomingEvents.map(event => (
-        <Link
-          key={event.id}
-          to={`/events/${event.id}`}
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          <div className="event-card">
-            <img
-  src={`${process.env.REACT_APP_API_URL}${event.image_url}`}
-  alt={event.title}
-  className="event-img"
-/>
-
-
-            <div className="event-details">
-  <h3>{event.title}</h3>
-  <p>{event.location}</p>
-  <p style={{ fontSize: '0.85rem', color: '#555', marginTop: '6px' }}>
-    {new Date(event.start_time).toLocaleString()}
-  </p>
-</div>
-
+        <h2>Upcoming Events</h2>
+        {upcomingEvents.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#888' }}>No upcoming events at the moment.</p>
+        ) : (
+          <div className="events-grid">
+            {upcomingEvents.map(event => (
+              <Link
+                key={event.id}
+                to={`/events/${event.id}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <div className="event-card">
+                  <img
+                    src={`${process.env.REACT_APP_API_URL}${event.image_url}`}
+                    alt={event.title}
+                    className="event-img"
+                  />
+                  <div className="event-details">
+                    <h3>{event.title}</h3>
+                    <p>{event.location}</p>
+                    <p style={{ fontSize: '0.85rem', color: '#555', marginTop: '6px' }}>
+                      {new Date(event.start_time).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-        </Link>
-      ))}
-    </div>
-  )}
-</section>
-
+        )}
+      </section>
 
       <section className="get-started">
         <h2>Get Started Today</h2>

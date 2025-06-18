@@ -1,8 +1,9 @@
+// --- ProfilePage.jsx ---
 import React, { useState, useEffect } from 'react';
 import './CSS/ProfilePage.css';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header'; // adjust path if needed
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const ProfilePage = () => {
@@ -76,38 +77,37 @@ const ProfilePage = () => {
 
   return (
     <>
-  <Header />
+      <Header />
 
-  <div className="profile-page">
-    <div className="profile-container">
-      <img src={photo} alt="Profile" className="profile-image" />
-      <div className="profile-name">{name}</div>
-      <div className="profile-email">{email}</div>
-      <button className="edit-btn" onClick={toggleEdit}>
-        {editing ? 'Cancel' : 'Edit your Info'}
-      </button>
+      <div className="profile-page">
+        <div className="profile-container">
+          <img src={photo} alt="Profile" className="profile-image" />
+          <div className="profile-name">{name}</div>
+          <div className="profile-email">{email}</div>
+          <button className="edit-btn" onClick={toggleEdit}>
+            {editing ? 'Cancel' : 'Edit your Info'}
+          </button>
 
-      {editing && (
-        <form className="edit-form" onSubmit={handleSave}>
-          <label htmlFor="name">Name</label>
-          <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
+          {editing && (
+            <form className="edit-form" onSubmit={handleSave}>
+              <label htmlFor="name">Name</label>
+              <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
 
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <label htmlFor="email">Email</label>
+              <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-          <label htmlFor="photo">Profile Photo</label>
-          <input type="file" id="photo" accept="image/*" onChange={handlePhotoChange} />
+              <label htmlFor="photo">Profile Photo</label>
+              <input type="file" id="photo" accept="image/*" onChange={handlePhotoChange} />
 
-          <button type="submit" className="save-btn">Save</button>
-          {message && <p className="success-message">{message}</p>}
-        </form>
-      )}
-    </div>
-  </div>
+              <button type="submit" className="save-btn">Save</button>
+              {message && <p className="success-message">{message}</p>}
+            </form>
+          )}
+        </div>
+      </div>
 
-  <Footer />
-</>
-
+      <Footer />
+    </>
   );
 };
 

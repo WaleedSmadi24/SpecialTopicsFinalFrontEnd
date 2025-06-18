@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect} from 'react';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
 import { AuthProvider } from './context/AuthContext';
@@ -14,7 +14,7 @@ const AppWithRouterLogic = () => {
     setLoading(true);
     const timeout = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timeout);
-  }, [location]);
+  }, [location, setLoading]);
 
   return (
     <>

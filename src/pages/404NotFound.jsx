@@ -10,19 +10,19 @@ const NotFound = () => {
   return (
     <>
       <Header />
-    <div className="not-found-container">
-      <div className="ghost">
-        <div className="face">
-          <div className="eye"></div>
-          <div className="eye right"></div>
-          <div className="mouth"></div>
+      <div className="not-found-container">
+        <div className="ghost">
+          <div className="face">
+            <div className="eye"></div>
+            <div className="eye right"></div>
+            <div className="mouth"></div>
+          </div>
         </div>
+        <h1>404 - Page Not Found</h1>
+        <p>Oops! The page you are looking for doesn’t exist.</p>
+        <button onClick={() => navigate('/')}>Back to Home</button>
       </div>
-      <h1>404 - Page Not Found</h1>
-      <p>Oops! The page you are looking for doesn’t exist.</p>
-      <button onClick={() => navigate('/')}>Back to Home</button>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };

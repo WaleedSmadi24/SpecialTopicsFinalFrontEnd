@@ -1,24 +1,18 @@
+// --- AuthContext.jsx ---
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Create context
 const AuthContext = createContext();
-
-// Custom hook
 export const useAuth = () => useContext(AuthContext);
 
-// Provider component
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
-
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
   });
-
   const [token, setToken] = useState(() => localStorage.getItem('token') || null);
 
-  // Save to localStorage when state changes
   useEffect(() => {
     if (token) localStorage.setItem('token', token);
     else localStorage.removeItem('token');
@@ -28,36 +22,34 @@ export const AuthProvider = ({ children }) => {
   }, [user, token]);
 
   const login = async (email, password, role) => {
-    const res = await fetch('${process.env.REACT_APP_API_URL}/auth/login', {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password })
     });
 
     if (!res.ok) throw new Error('Login failed');
-
     const data = await res.json();
     setUser(data.user);
     setToken(data.token);
-    localStorage.setItem('user', JSON.stringify(data.user)); // ✅ immediately save
+    localStorage.setItem('user', JSON.stringify(data.user));
 
     if (data.user.role === 'organizer') navigate('/organizer/dashboard');
     else navigate('/attendee/dashboard');
   };
 
   const register = async (name, email, password, role) => {
-    const res = await fetch('${process.env.REACT_APP_API_URL}/auth/register', {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role }),
+      body: JSON.stringify({ name, email, password, role })
     });
 
     if (!res.ok) throw new Error('Signup failed');
-
     const data = await res.json();
     setUser(data.user);
     setToken(data.token);
-    localStorage.setItem('user', JSON.stringify(data.user)); // ✅ immediately save
+    localStorage.setItem('user', JSON.stringify(data.user));
 
     if (data.user.role === 'organizer') navigate('/organizer/dashboard');
     else navigate('/attendee/dashboard');
