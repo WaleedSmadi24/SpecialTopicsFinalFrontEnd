@@ -1,72 +1,148 @@
-# Getting Started with Create React App
+# 🎉 Eventify Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the **Eventify Frontend**, a full-stack event ticketing platform built with **React.js**. This frontend app allows attendees to browse events, purchase tickets, and manage their profiles. Organizers can create and manage their events through a dedicated dashboard.
 
-## Available Scripts
+🌐 **Live Frontend**: [https://specialtopicsfinalfrontend-production.up.railway.app](https://specialtopicsfinalfrontend-production.up.railway.app)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🧱 Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **React.js** (Create React App)
+- **React Router DOM** (v6)
+- **Context API** for Authentication
+- **Chart.js** for Analytics
+- **CSS Modules** and plain CSS
+- **WeatherAPI.com** (for weather widget)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🧭 Features Overview
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🔐 Authentication
+- Login & Signup using JWT
+- Role-based login: **Attendee** or **Organizer**
+- Session persistence via `localStorage`
+- Global `AuthContext` for auth state
 
-### `npm run build`
+### 🎫 Attendee Features
+- View categorized events (Tech, Musical, Sports)
+- Event Detail page:
+  - View full event info
+  - Organizer contact card
+  - Purchase tickets (max 3 per user)
+  - Modern ticket modal with total + tax
+- Dashboard:
+  - Total tickets bought
+  - Total spent (includes 15% tax)
+  - Distinct events attended
+- Profile:
+  - View/edit name/email
+  - Upload/update profile photo
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 🧑‍💼 Organizer Features
+- Dashboard:
+  - View all created events
+  - See total tickets sold
+- Create Event form:
+  - Upload event image
+  - Choose category
+  - Fields: title, description, location, price, date, ticket count
+- Organizers **cannot** purchase tickets
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🌤 Weather Widget
+- Live weather for Amman
+- Centered in the header
+- Non-disruptive to layout
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## 🗂 Project Structure
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+src/
+├── assets/ # Static assets (images, icons, etc.)
+├── components/ # Reusable components (Header, Footer, etc.)
+├── context/
+│ └── AuthContext.jsx # Auth provider and context hook
+├── pages/
+│ ├── Attendee/
+│ │ ├── CSS/ # Styles for Attendee pages
+│ │ └── AttendeeDB.jsx # Attendee Dashboard
+│ ├── Organizer/ # Organizer-specific pages
+│ ├── CSS/ # Global/shared page styles
+│ ├── 404NotFound.jsx # Not Found Page
+│ ├── AboutUs.jsx # Static About Page
+│ ├── EventDetailPage.jsx # Event Details + Ticket Purchase Modal
+│ ├── EventifyLanding.jsx # Home/Landing Page
+│ ├── Events.jsx # Grouped Events Listing
+│ ├── HomePage.jsx # Optional main landing
+│ ├── Login.jsx # Login Page
+│ ├── Signup.jsx # Signup Page
+│ ├── ProfilePage.jsx # Profile + Image Upload
+├── routes/ # Route protection / role-based access
+├── App.js # Main app component + routes
+├── index.css # Global styles
+└── index.js # App entry point
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## ✅ Setup Locally
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 1. Clone the Repo
+git clone https://github.com/your-username/eventify-frontend.git
+cd eventify-frontend
+### 2. Install Dependencies
+npm install
+### 3. Start Development Server
+npm start
+Runs on http://localhost:3000 by default.
 
-## Learn More
+## 🔄 API Integration
+This frontend is powered by the Express/PostgreSQL backend:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 🔗 Backend URL: https://specialtopicsfinalbackend-production.up.railway.app
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Key Endpoints Used:
 
-### Code Splitting
+GET /events – Fetch all events
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+GET /events/:id – Event details
 
-### Analyzing the Bundle Size
+POST /auth/login / auth/register – Auth endpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+GET /tickets/me – Attendee tickets
 
-### Making a Progressive Web App
+POST /tickets – Ticket purchase
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+POST /events – Organizer creates event
 
-### Advanced Configuration
+GET /organizer/events – Organizer's events
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 📦 Dependencies
+react-router-dom
 
-### Deployment
+chart.js
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+chartjs-plugin-datalabels
 
-### `npm run build` fails to minify
+react-chartjs-2
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+uuid
 
-# SpecialTopicsFinalFrontEnd
+moment
+
+classnames
+
+## 🌍 Deployment Notes
+The frontend is deployed using Railway.
+
+### To Build for Production:
+npm run build
+
+#### Make sure your package.json contains the correct homepage field if needed.
+
+
+## 🤝 Contributing
+Pull requests and forks are welcome!
+
+## 📃 License
+Licensed under the MIT License.
