@@ -18,6 +18,10 @@ const EventDetail = () => {
   const [formData, setFormData] = useState({});
   const [newImages, setNewImages] = useState([]);
   const [removedImageUrls, setRemovedImageUrls] = useState([]);
+  const isOrganizer = user?.role === 'organizer';
+  const [alreadyBought, setAlreadyBought] = useState(0);
+
+
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -51,15 +55,36 @@ const EventDetail = () => {
 
     fetchEvent();
     fetchImages();
+
+    const fetchUserTickets = async () => {
+  if (user?.id && eventId) {
+    try {
+      const res = await fetch(`http://localhost:5000/tickets/purchased?user_id=${user.id}&event_id=${eventId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      setAlreadyBought(data.total || 0);
+    } catch (err) {
+      console.error('Error fetching user ticket count:', err);
+    }
+  }
+};
+fetchUserTickets();
+
   }, [eventId]);
 
   const isOwnerOrganizer = user?.role === 'organizer' && user?.id === eventData?.organizer_id;
-  const ticketPrice = typeof eventData?.price === 'number' ? eventData.price : 50;
+  const ticketPrice = !isNaN(parseFloat(eventData?.price)) ? parseFloat(eventData.price) : 50;
   const taxRate = 0.15;
   const subtotal = quantity * ticketPrice;
   const total = subtotal + subtotal * taxRate;
   const isPastEvent = eventData && new Date(eventData.start_time) < new Date();
-  const ticketsLeft = eventData ? eventData.total_tickets - (eventData.tickets_sold || 0) : null;
+  const totalAvailable = eventData ? eventData.total_tickets - (eventData.tickets_sold || 0) : 0;
+  const userRemainingLimit = Math.max(0, 3 - alreadyBought);
+  const ticketsLeft = Math.min(totalAvailable, userRemainingLimit);
+
 
   const handleCheckout = async () => {
     if (!user) return alert('You must be logged in to purchase tickets.');
@@ -165,13 +190,16 @@ const EventDetail = () => {
         </div>
 
         <div className="ticket-qr">
-          <button
-            className="buy-ticket-btn"
-            onClick={() => setShowPopup(true)}
-            disabled={isPastEvent}
-          >
-            Buy Ticket Now
-          </button>
+          {!isOrganizer && (
+  <button
+    className="buy-ticket-btn"
+    onClick={() => setShowPopup(true)}
+    disabled={isPastEvent}
+  >
+    Buy Ticket Now
+  </button>
+)}
+
         </div>
       </div>
 
@@ -240,9 +268,9 @@ const EventDetail = () => {
         </div>
       )}
 
-      {showPopup && (
-        <div className="popup-overlay" onClick={(e) => e.target.className === 'popup-overlay' && setShowPopup(false)}>
-          <div className="ticket-popup">
+      {showPopup && !isOrganizer && (
+  <div className="popup-overlay" onClick={(e) => e.target.className === 'popup-overlay' && setShowPopup(false)}>
+    <div className="ticket-popup">
             <div className="popup-header">
               <h2 className="popup-title">{eventData?.title || 'Event'}</h2>
               <button className="close-popup" onClick={() => setShowPopup(false)}>&times;</button>
@@ -255,11 +283,11 @@ const EventDetail = () => {
                 <span className="quantity-value">{quantity}</span>
                 <button className="quantity-btn" onClick={() => setQuantity(q => Math.min(ticketsLeft, q + 1))} disabled={quantity >= ticketsLeft}>+</button>
               </div>
-              {ticketsLeft !== null && <p className="remaining-note">Max you can buy: {ticketsLeft}</p>}
+              <p className="remaining-note">Max you can buy: {ticketsLeft}</p>
             </div>
 
             <div className="sale-info">
-              {typeof eventData?.price === 'number' && `${eventData.price.toFixed(2)} JD +15% tax`}<br />
+              {!isNaN(parseFloat(eventData?.price)) && `${parseFloat(eventData.price).toFixed(2)} JD +15% tax`}
               {ticketsLeft !== null && <strong>{ticketsLeft} ticket(s) remaining</strong>}
             </div>
 

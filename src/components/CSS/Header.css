@@ -57,3 +57,35 @@ nav {
 }
 
 
+.navbar {
+  position: relative; /* important for absolute centering */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 16px;
+}
+
+.profile-links {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.weather-widget-centered {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+
+
+

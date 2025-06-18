@@ -128,3 +128,7 @@ h2 {
   font-weight: bold;
   cursor: pointer;
 }
+
+.create-event-section h2 {
+  margin-bottom: 30px;
+}

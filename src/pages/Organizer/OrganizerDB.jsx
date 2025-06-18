@@ -17,6 +17,8 @@ const OrganizerDashboard = () => {
 
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ totalTicketsSold: 0 });
+
 
   useEffect(() => {
   const fetchEvents = async () => {
@@ -38,6 +40,19 @@ const OrganizerDashboard = () => {
   };
 
   fetchEvents();
+  const fetchStats = async () => {
+  try {
+    const res = await fetch('http://localhost:5000/organizer/stats', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setStats(data);
+  } catch (err) {
+    console.error('Failed to fetch stats:', err);
+  }
+};
+fetchStats();
+
 }, [token]);
 
 
@@ -56,17 +71,12 @@ const OrganizerDashboard = () => {
           <div className="analytics-metrics">
             <div className="metric-card">
               <span className="icon">🎟️</span>
-              <h2>312</h2>
+              <h2>{stats.totalTicketsSold}</h2>
               <p>Total Tickets Sold</p>
             </div>
             <div className="metric-card">
-              <span className="icon">👀</span>
-              <h2>2.5K</h2>
-              <p>Views</p>
-            </div>
-            <div className="metric-card">
               <span className="icon">↩️</span>
-              <h2>5</h2>
+              <h2>0</h2>
               <p>Tickets Returned</p>
             </div>
           </div>
