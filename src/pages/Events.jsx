@@ -16,13 +16,14 @@ export default function Events() {
       const grouped = { Musical: [], Sports: [], Tech: [] };
 
       data.forEach((event) => {
-        const name = event.category_name?.toLowerCase() || '';
+  const name = event.category_name?.toLowerCase() || '';
+  console.log('📦 category_name:', name); // 🐞 debug log
 
-        // ✅ flexible matching using includes()
-        if (name.includes('tech')) grouped.Tech.push(event);
-        else if (name.includes('music')) grouped.Musical.push(event);
-        else if (name.includes('sport')) grouped.Sports.push(event);
-      });
+  if (name.includes('tech')) grouped.Tech.push(event);
+  else if (name.includes('music')) grouped.Musical.push(event);
+  else if (name.includes('sport')) grouped.Sports.push(event);
+});
+
 
       for (const key in grouped) {
         grouped[key] = shuffleArray(grouped[key]);
