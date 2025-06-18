@@ -67,8 +67,8 @@ const AttendeeDashboard = () => {
   };
 
   const totalSpent = tickets.reduce((sum, t) => {
-    const price = t.price || 0;
-    const qty = t.quantity || 0;
+    const price = t.unit_price;
+    const qty = t.quantity;
     const base = qty * price;
     const tax = base * 0.15;
     return sum + base + tax;
@@ -82,12 +82,16 @@ const AttendeeDashboard = () => {
 
         <div className="cards-container">
           <div className="card">
-            <h3>Tickets Bought</h3>
-            <p>{tickets.length}</p>
+            <span className="dashboard-value">
+              {tickets.reduce((sum, t) => sum + (t.quantity || 0), 0)}
+            </span>
+            <span className="dashboard-label">Tickets Bought</span>
           </div>
           <div className="card">
-            <h3>Events Attended</h3>
-            <p>{tickets.length}</p>
+            <span className="dashboard-value">
+              {[...new Set(tickets.map(t => t.event_id))].length}
+            </span>
+            <span className="dashboard-label">Events Attended</span>
           </div>
           <div className="card">
             <span className="dashboard-value">{totalSpent.toFixed(2)} JD</span>
